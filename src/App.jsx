@@ -2,10 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext'
 import { ModalProvider } from './context/ModalContext'
 import ProtectedRoute from './components/ProtectedRoute'
-import Home          from './pages/Home'
-import Watch         from './pages/Watch'
-import Search        from './pages/Search'
-import Login         from './pages/Login'
+import Home    from './pages/Home'
+import Series  from './pages/Series'
+import Movies  from './pages/Movies'
+import Watch   from './pages/Watch'
+import Search  from './pages/Search'
+import Login   from './pages/Login'
 import Profiles from './pages/Profiles'
 import './index.css'
 
@@ -22,6 +24,12 @@ function App() {
             {/* 보호된 라우트 */}
             <Route path="/" element={
               <ProtectedRoute><Home /></ProtectedRoute>
+            } />
+            <Route path="/series" element={
+              <ProtectedRoute><Series /></ProtectedRoute>
+            } />
+            <Route path="/movies" element={
+              <ProtectedRoute><Movies /></ProtectedRoute>
             } />
             <Route path="/search" element={
               <ProtectedRoute><Search /></ProtectedRoute>

@@ -6,28 +6,33 @@ import { fetchTvSeason } from '../api/tmdb';
 const SERVERS = [
   {
     name: '서버 1',
-    movie: (id) => `https://www.2embed.cc/embed/${id}`,
-    tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
+    // vidsrc.to — TMDB 기반, HTTPS 안정적
+    movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
+    tv:    (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
   },
   {
     name: '서버 2',
-    movie: (id) => `https://vidsrc.net/embed/movie?tmdb=${id}`,
-    tv: (id, s, e) => `https://vidsrc.net/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+    // embed.su — TMDB 기반, 한국 콘텐츠 비교적 양호
+    movie: (id) => `https://embed.su/embed/movie/${id}`,
+    tv:    (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
   },
   {
     name: '서버 3',
+    // autoembed.co — 경로 방식, TV 시즌-에피소드 하이픈 연결
     movie: (id) => `https://autoembed.co/movie/tmdb/${id}`,
-    tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`,
+    tv:    (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`,
   },
   {
     name: '서버 4',
-    movie: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-    tv: (id, s, e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+    // 2embed.cc — ? 쿼리 파라미터 올바르게 수정 (기존 &는 버그)
+    movie: (id) => `https://www.2embed.cc/embed/${id}`,
+    tv:    (id, s, e) => `https://www.2embed.cc/embedtv/${id}?s=${s}&e=${e}`,
   },
   {
     name: '서버 5',
-    movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`,
-    tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`,
+    // vidsrc.me — vidsrc 계열 중 안정적인 미러
+    movie: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}`,
+    tv:    (id, s, e) => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
   },
 ];
 

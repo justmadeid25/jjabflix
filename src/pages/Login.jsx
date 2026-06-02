@@ -8,19 +8,21 @@ const FALLBACK_BG =
 
 function Login() {
   const navigate = useNavigate()
-  const { login, signup, loggedIn, profile } = useAuth()
+  const { login, signup, loggedIn, profile, loading } = useAuth()
 
-  const [mode,     setMode]     = useState('login') // 'login' | 'signup'
-  const [email,    setEmail]    = useState('')
-  const [password, setPassword] = useState('')
-  const [confirm,  setConfirm]  = useState('')
-  const [error,    setError]    = useState('')
-  const [bgUrl,    setBgUrl]    = useState(FALLBACK_BG)
+  const [mode,       setMode]       = useState('login') // 'login' | 'signup'
+  const [email,      setEmail]      = useState('')
+  const [password,   setPassword]   = useState('')
+  const [confirm,    setConfirm]    = useState('')
+  const [error,      setError]      = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [bgUrl,      setBgUrl]      = useState(FALLBACK_BG)
 
   useEffect(() => {
+    if (loading) return // Firebase 초기화 완료 전에는 리다이렉트 안 함
     if (loggedIn && profile) { navigate('/', { replace: true }); return }
     if (loggedIn)            { navigate('/profiles', { replace: true }); return }
-  }, [loggedIn, profile, navigate])
+  }, [loggedIn, profile, loading, navigate])
 
   useEffect(() => {
     fetchTrending()
@@ -39,7 +41,7 @@ function Login() {
     setConfirm('')
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -48,23 +50,27 @@ function Login() {
       return
     }
 
-    if (mode === 'signup') {
-      if (password.length < 6) {
-        setError('비밀번호는 6자 이상이어야 합니다.')
-        return
+    setSubmitting(true)
+    try {
+      if (mode === 'signup') {
+        if (password.length < 6) {
+          setError('비밀번호는 6자 이상이어야 합니다.')
+          return
+        }
+        if (password !== confirm) {
+          setError('비밀번호가 일치하지 않습니다.')
+          return
+        }
+        const result = await signup(email.trim(), password)
+        if (!result.ok) { setError(result.message); return }
+      } else {
+        const result = await login(email.trim(), password)
+        if (!result.ok) { setError(result.message); return }
       }
-      if (password !== confirm) {
-        setError('비밀번호가 일치하지 않습니다.')
-        return
-      }
-      const result = signup(email.trim(), password)
-      if (!result.ok) { setError(result.message); return }
-    } else {
-      const result = login(email.trim(), password)
-      if (!result.ok) { setError(result.message); return }
+      navigate('/profiles')
+    } finally {
+      setSubmitting(false)
     }
-
-    navigate('/profiles')
   }
 
   return (
@@ -140,9 +146,13 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-3 rounded transition-colors mt-2"
+            disabled={submitting}
+            className="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 rounded transition-colors mt-2"
           >
-            {mode === 'login' ? '로그인' : '회원가입'}
+            {submitting
+              ? (mode === 'login' ? '로그인 중...' : '가입 중...')
+              : (mode === 'login' ? '로그인' : '회원가입')
+            }
           </button>
         </form>
 
